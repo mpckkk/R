@@ -1,0 +1,108 @@
+Part1) Probability 
+Suppose that in a particular state, among the registered voters, 35% are democrats, 45 % are republicans, and the rest are independents. Suppose that a ballot question is whether to impose wealth tax on millionaires or not. Suppose that 75% of democrats, 20% of republicans, and 50% of independents favor the wealth tax. If a person is chosen at random that favors the sales tax, what is the probability that the person is i) a democrat? ii) a republican, iii) an independent. Show the solutions with the calculations without using R. Then, verify your answers with the bayes function provided in the code samples.
+Part2) Random Variables
+a) Consider the experiment of rolling a pair of dice. Using R, show how would you define a random variable for the absolute value of the difference of the two rolls.
+b) Using the above result, what is the probability that the two rolls differ by exactly 2? What is the probability that the two rolls differ by at most 2? What is the probability that the two rolls differ by at least 3? Use the Prob function as shown in the code samples.
+c) Show the marginal distribution of the above random variable (using R).
+d) Using R, add another random variable to the above probability space using a user defined function. The random variable is TRUE if the two rolls differ by 2, and FALSE otherwise. Making use of this random variable, what is the probability that the two rolls differ by 2? Show also the marginal distribution for this random variable
+Part3) Functions 
+Using a for loop, write your own R function, evensum(data), that returns the sum of all the even
+values in the given numeric data vector.
+Now, without using any loop, write your own R function, evensum2(data), that returns the sum of all the even values in the given numeric data vector.
+Test both functions with sample data.
+Part4) R 
+Initialize the Dow Jones Industrials daily closing data as shown below: dow <- read.csv('http://people.bu.edu/kalathur/datasets/DJI_2018.csv',
+stringsAsFactors = FALSE)
+Provide the simplest R code and output for all of the following. The code should work for any given data.
+a) Use the diff function to calculate the differences between consecutive values.
+Insert the value 0 at the beginning of these differences. Add this result as the DIFFS column of the data frame.
+b) How many days did the Dow close higher than its previous day value? How many days did the Dow close lower than its previous day value?
+c) Show the subset of the data where there was a gain of at least 500 points from its previous day value.
+d) Provide the solution to compute the longest gaining streak of at least 200 points in the data. Show the data for that longest gaining streak. Hint: Use the rle function provided by R.
+library(prob)
+
+# Part 1
+bayes <- function (prior, likelihood) {
+  numerators <- prior * likelihood
+  return (numerators / sum(numerators)) 
+}
+
+prior <- c(0.35, 0.45, 0.2)
+like <- c(0.75, 0.20, 0.5)
+bayes(prior, like)
+# Part 2
+# a
+rolls <- rolldie(2, nsides=6)
+diff <- abs(rolls$X1-rolls$X2)
+diff
+# b
+space <-probspace(diff)
+space
+# exactly 2
+Prob(subset(space, diff==2))
+# at most 2
+Prob(subset(space, diff<=2))
+# at least 3
+Prob(subset(space, diff>=3))
+# c
+marginal(space)
+# d
+f <- function(x){
+  if(x==2){
+    return(TRUE)
+  }
+  FALSE
+}
+
+S2 <- addrv(space, FUN=f, name="U")
+S2
+marginal(S2, vars="U")
+
+# Part 3
+# loop method
+evensum <- function(data){
+  total <- 0
+  for(num in data){
+    if(num%%2==0){
+      total <- total+ num
+    }
+  }
+  return(total)
+}
+
+#
+evensum2 <- function(data){
+  sum(data[data%%2==0])
+}
+
+evensum(c(15,20,25,30,35))
+evensum(1:10)
+evensum2(c(15,20,25,30,35))
+evensum2(1:10)
+evensum2(seq(1, 15, by=2))
+# Part 4
+dow <- read.csv('http://people.bu.edu/kalathur/datasets/DJI_2018.csv',  
+                stringsAsFactors = FALSE) 
+# a
+dow$DIFF <- c(0, diff(dow$Close))
+# b
+sum(dow$DIFF>0)
+sum(dow$DIFF<0)
+# c
+df <- dow[dow$DIFF>500,]
+df
+# d
+df$PrevClose <- df$Close - df$DIFF
+df
+# e
+res <- rle(dow$DIFF>200)
+length <- res$lengths
+values <- res$values
+temp <- data.frame(length, values)
+temp2 <- temp[temp$values==TRUE,]
+max_length <- max(temp2$length)
+res <- temp[temp$length==max_length & temp$values==TRUE,]
+start <- sum(temp$length[1:(as.numeric(rownames(res)[1])-1)]) + 1
+end <- start + max_length-1
+df <- dow[start:end, ]
+df
