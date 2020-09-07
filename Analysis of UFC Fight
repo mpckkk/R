@@ -1,0 +1,191 @@
+Analysis of UFC Fight
+Dataset Details
+The dataset contains information about UFC fight in the history of the organisation, Every row contains information about both fighters, fight details and the winner. The data was scraped from ufcstats website. Each row is a compilation of both fighter stats. Fighters are represented by ‘red’ and ‘blue’ (for red and blue corner). So for instance, red fighter has the complied average stats of all the fights except the current one. The stats include damage done by the red fighter on the opponent and the damage done by the opponent on the fighter (represented by ‘opp’ in the columns) in all the fights this particular red fighter has had, except this one as it has not occured yet (in the data). Same information exists for blue fighter. The target variable is ‘Winner’ which is the only column that tells you what happened.
+Objective
+The objective of this project is to analyze the UFC Fight data, and show the usage of central limit theorem.
+
+title: "Analysis of UFC Fight"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(stringr)
+```
+
+### Dataset Details
+The dataset contains information about UFC fight in the history of the organisation, Every row contains information about both fighters, fight details and the winner. The data was scraped from ufcstats website. Each row is a compilation of both fighter stats. Fighters are represented by 'red' and 'blue' (for red and blue corner). So for instance, red fighter has the complied average stats of all the fights except the current one. The stats include damage done by the red fighter on the opponent and the damage done by the opponent on the fighter (represented by 'opp' in the columns) in all the fights this particular red fighter has had, except this one as it has not occured yet (in the data). Same information exists for blue fighter. The target variable is 'Winner' which is the only column that tells you what happened.
+
+### Objective
+
+The objective of this project is to analyze the UFC Fight data, and show the usage of central limit theorem.
+
+### Preparing the dataset
+Since the location contains the country name, we can extract the country name from the location, using the strsplit method to split the location by comma, then the last token is the country name.
+```{r}
+dat <- read.csv("data.csv", stringsAsFactors = F)
+getCountryName <- function(location){
+  tokens <- unlist(strsplit(location, ","))
+  return(tokens[length(tokens)])
+}
+dat$country <- sapply(dat$location, getCountryName)
+```
+
+
+### Which referee occured the most times?
+```{r}
+dt <- table(dat$Referee)
+dt <- sort(dt, decreasing = T)
+dt[1]
+```
+
+Find the top 10 referees which occured the most times, then draw a barplot.
+```{r}
+barplot(dt[1:10], las=2, xlab="Referee", ylab="Count")
+```
+
+Herb Dean ouccred about 726 times, John McCarthy occured about 634 times, and Mario Yamasaki occured about 391 times.
+
+### Which country hold the competion for the most times?
+```{r}
+dt <- table(dat$country)
+dt <- sort(dt, decreasing = T)
+dt[1]
+```
+
+We can see from the result, USA held the competition for the most times, the number is 3392.
+
+
+Select the top 10 countries and draw a barplot.
+```{r}
+barplot(dt[1:10], las=2, ylab="Number", main="Barplot of hold times")
+```
+
+The top three countries are USA, Brazil and Canada, USA held the competition for the most times, and the number is much larger than other countries.
+
+### What is the distribution of the blue cornor fighters?
+```{r}
+summary(dat$B_age)
+```
+
+```{r}
+barplot(table(dat$B_age), las=2)
+```
+
+As we can see from the histogram and the summary information, the age of the blue cornor fighters spreads from 18 to 51, the mean age is 29.17, the median age is 29, the minimum age is 18, the maximum age is 51, most of the fighters are between 25 years old and 34 years old.
+
+### Height distribution of each cornor fight
+```{r}
+df <- dat[,c("B_Height_cms", "R_Height_cms")]
+colnames(df) <- c("Blue", "Red")
+boxplot(df, ylab="Height", main="Boxplot of the height")
+```
+
+We can see from the plot, the height ditribution of the blue cornor fighters and th red cornor fighters are almost the same, both distribution are a little left skewed, and there are some outliers in the heights.
+
+### Weight Distribution of each weight class
+```{r}
+df <- dat[, c("B_Weight_lbs", "weight_class")]
+colnames(df) <- c("Weight", "Class")
+aggregate(Weight~Class, df, mean)
+df$Class <- as.factor(df$Class)
+```
+
+
+```{r}
+
+boxplot(Weight~Class, df, las=2)
+```
+
+Based on the computation and plot, we can see that the Heavyweight class has the largest average weight, the Open Weight class has the second largest average weight, and the Women's Strawweight class has the smallest average weight.
+
+### Central Limit Theorem
+Here I will choose the numeric variable blue corner age, draw a hsitogram of the age.
+```{r}
+hist(dat$B_age, main="Histogram of the age", xlab="Age")
+```
+
+We can see from the plot, the distribution of age is right skewed, it does not follow the normal distrbution. Becase the central limit theorem states that the distribution of sample means, taken from independent random sample sizes, follows a normal
+distribution even if the original population is not normally distributed. Then we can draw various random samples of the data and show the applicability of the Central Limit Theorem for the age.
+
+
+```{r}
+# sample size = 10
+par(mfrow=c(2,2))
+ages <- na.omit(dat$B_age)
+x_mean <- mean(ages)
+samples <- 10000
+samples.size <- 10
+xbar <- numeric(samples)
+for(i in 1:samples){
+  xbar[i] <- mean(sample(ages,samples.size, replace=F))
+}
+hist(xbar, main="n=10", breaks=30)
+
+# sample size = 20
+samples <- 10000
+samples.size <- 20
+xbar <- numeric(samples)
+for(i in 1:samples){
+  xbar[i] <- mean(sample(ages,samples.size, replace=F))
+}
+hist(xbar, main="n=20",  breaks=30)
+
+
+# sample size = 30
+samples <- 10000
+samples.size <- 30
+xbar <- numeric(samples)
+for(i in 1:samples){
+  xbar[i] <- mean(sample(ages,samples.size, replace=F))
+}
+hist(xbar, main="n=30", breaks=30)
+
+
+# sample size = 40
+samples <- 10000
+samples.size <-50
+xbar <- numeric(samples)
+for(i in 1:samples){
+  xbar[i] <- mean(sample(ages,samples.size, replace=F))
+}
+hist(xbar, main="n=50",  breaks=30)
+```
+
+The above histograms showing the sample means of 1000 random samples of sample size 10, 20, 30, and 50 follow a normal distribution, which prove the central limit theorem.
+
+### Sampling methods
+```{r}
+library(sampling)
+# first check the count of different ages.
+table(dat$Winner)
+
+# draw a simple random sample
+s <- srswr(100, length(dat$Winner))
+rows <- (1:length(dat$Winner))[s!=0]
+sample.1 <- dat$Winner[rows]
+table(sample.1)
+
+# Systematic Sampling
+N <- length(dat$Winner)
+n <- 100
+k <- ceiling(N/n)
+r <- sample(k, 1)
+s <-seq(r, by=k, length=n)
+sample.2 <- dat$Winner[s]
+table(sample.2)
+
+#  Unequal Strata Sample
+freq <- table(dat$Winner)
+st.sizes <- round(20*freq/sum(freq))
+st.sizes[2] <- 1
+st.2 <- strata(dat, stratanames = c("Winner"), size=st.sizes, method="srswor", description = T)
+st.samples2 <- getdata(dat, st.2)
+table(st.samples2$Winner)
+
+```
+
+
+Sampling is the process of selection of limited number of elements from large group of elements (population) so that, the characteristics of the samples taken is identical to that of the population. Sampling saves time to a great extent by reducing the volume of data. You do not go through each of the individual items. Sampling Avoids monotony in works. We do not have to repeat the query again and again to all the individual data. When we have limited time, survey without using sampling becomes impossible. It allows us to get near-accurate results in much lesser time, the result of sampling is reliable.
+
+Every coin has two sides. Sampling also have some disadvantages, for example, sampling may exclude some data that might not be homogenous to the data that are taken. This affects the level of accuracy in the results.
