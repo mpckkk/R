@@ -1,0 +1,197 @@
+Part1) Binomial distribution 
+Suppose a student has 50% chance of scoring a perfect score in an exam with randomly selected questions. Using the binomial distribution,
+a) Compute and plot the probability distribution for scoring a perfect score over the next 5 attempts.
+b) Plot the CDF for the above
+c) Repeat a) and b) if the student has 75% chance of scoring a perfect score.
+d) Repeat a) and b) if the student has 35% chance of scoring a perfect score.
+e) Infer from the shape of the distributions.
+Part2) Binomial distribution 
+Suppose that 80% of the flights arrive on time. Using the binomial distribution,
+a) What is the probability that four flights will arrive on time in the next 10 flights?
+b) What is the probability that four or fewer flights will arrive on time in the next 10 flights?
+c) Compute the probability distribution for the next 10 flights. d) Show the PMF and the CDF for the next 10 flights.
+Part3) Poisson distribution 
+Suppose that on average 10 cars drive up to the teller window at your bank between 3 PM and 4 PM and the random variable has a Poisson distribution. During this time period,
+a) What is the probability of serving exactly 3 cars?
+b) What is the probability of serving at least 3 cars?
+c) What is the probability of serving between 2 and 5 cars (inclusive)? d) Calculate and plot the PMF for the first 20 cars.
+Part4) Discrete Uniform distribution 
+Suppose that your exams are graded using a uniform distribution between 70 and 90.
+a) What is the probability of scoring i) 70? ii) 80? iii) 100?
+b) What is the mean and standard deviation of this distribution?
+c) What is the probability of getting a score of at most 80?
+d) What is the probability of getting a score greater than 80 (use the lower.tail option)?
+e) What is the probability of getting a score between 80 and 90 (inclusive)?
+Part5) Normal distribution 
+Suppose that visitors at a theme park spend an average of $100 on souvenirs. Assume that the money spent is normally distributed with a standard deviation of $10.
+a) Show the PDF of this distribution covering the three standard deviations on either side of the mean.
+b) What is the probability that a randomly selected visitor will spend more than $120?
+c) What is the probability that a randomly selected visitor will spend between $80 and $90 (inclusive)?
+d) What are the probabilities of spending within one standard deviation, two standard deviations, and three standard deviations, respectively?
+e) Between what two values will the middle 90% of the money spent will fall?
+f) If the theme park gives a free T-shirt for the top 5% of the spenders, what will be the minimum amount you have to spend to get the free T-shirt?
+g) Show a plot for 10,000 visitors using the above distribution.
+Part6) Exponential distribution 
+Suppose your cell phone provider’s customer support receives calls at the rate of 18 per hour.
+a) What is the probability that the next call will arrive within 2 minutes?
+b) What is the probability that the next call will arrive within 5 minutes?
+c) What is the probability that the next call will arrive between 2 minutes and 5 minutes (inclusive)?
+d) Show the CDF of this distribution.
+# Part 1
+# a
+# a) Compute and plot the probability distribution for scoring a perfect score  over the next 5 attempts
+p <- 0.5   # probability
+n <- 5      # number of trails
+dbinom(0:n, size=n, p=p)
+pmf<- dbinom(0:n, size=n, p=p)
+plot(0:n,pmf, type="h", main="Spike plot of scoring", xlab="score", ylab="PMF")
+points(0:n,pmf, pch=16)
+
+# b) plot the cdf
+cdf <- c(0, cumsum(pmf))
+cdfplot<-stepfun(0:n, cdf)
+plot(cdfplot, verticals=FALSE, pch=16, main="CDF plot", xlab="score", ylab="CDF")
+
+# c)
+p <- 0.75  # if the student has 75% chance of getting a perfect score
+dbinom(0:n,size=n,p=p)
+pmf<- dbinom(0:n,size=n,p=p)
+plot(0:n,pmf, type="h", main="Spike plot of scoring", xlab="score", ylab="PMF")
+points(0:n,pmf, pch=16)
+
+# plot the cdf
+cdf <- c(0, cumsum(pmf))
+cdfplot<-stepfun(0:n, cdf)
+plot(cdfplot, verticals=FALSE, pch=16, main="CDF plot", xlab="score", ylab="CDF")
+
+# d)
+p <- 0.35  # if the student has 35% chance of getting a perfect score
+dbinom(0:n, size=n, p=p)
+pmf<- dbinom(0:n, size=n, p=p)
+plot(0:n,pmf, type="h", main="Spike plot of scoring", xlab="score", ylab="PMF")
+points(0:n,pmf, pch=16)
+
+# plot the cdf
+cdf <- c(0, cumsum(pmf))
+cdfplot<-stepfun(0:n, cdf)
+plot(cdfplot, verticals=FALSE, pch=16, main="CDF plot", xlab="strike", ylab="CDF")
+
+# e)
+# If the probability of getting a good score is less than 0.5, the plot is right-skewed,
+# if the probability is greater than 0.5, then the plot is left-skewed.
+
+
+### Part 2
+# a) What is the probability that four flights will arrive on time in the next 10 flights? 
+dbinom(4,size = 10,p=0.8)
+# b) What is the probability that four or fewer flights will arrive on time in thenext 10 flights? 
+pbinom(4,size=10,p=0.8)
+# c) Compute the probability distribution for the next 10 flights. 
+p <- 0.8  
+n <- 10   
+dbinom(0:n, size=n, p=p)
+pmf<- dbinom(0:n,size=n,p=p)
+pmf
+
+# d) Show the PMF and the CDF for the next 10 flights. 
+plot(0:n,pmf, type="h", main="Spike plot of arriving", xlab="arrive on time", ylab="PMF")
+points(0:n,pmf, pch=16)
+# plot the cdf
+cdf <- c(0, cumsum(pmf))
+cdfplot<-stepfun(0:n, cdf)
+plot(cdfplot, verticals=FALSE, pch=16, main="CDF plot", xlab="arrive on time", ylab="CDF")
+
+### Part 3
+# a
+dpois(3,lambda = 10)
+
+# b
+1- ppois(2, lambda = 10)
+
+# c
+ppois(5, lambda=10)-ppois(1,lambda = 10)
+
+# d
+pmf<-dpois(0:20,lambda = 10)
+pmf
+plot(0:20,pmf, type="h", main="Spike plot of cars", xlab="cars", ylab="PMF")
+points(0:20,pmf, pch=16)
+
+### Part 4
+# a)
+dunif(70,min=70,max=90)
+
+dunif(80,min=70,max=90)
+
+dunif(100,min=70,max=90)
+
+
+# b) the mean and standard deviation
+x<-70:90
+f<-dunif(70:90,min=70,max=90)
+mu<-sum(x*f)
+mu
+sigma<-sqrt(sum((x-mu)^2*f))
+sigma
+
+# c)
+punif(80,min=70,max=90)
+
+# d) 
+punif(80,min=70,max=90, lower.tail = F)
+
+# e)
+punif(90,min=70, max=90) - punif(80,min=70,max=90)
+
+### Part 5
+mu<-100
+sigma <- 10
+x<-seq(50,150)
+pdf<-dnorm(x, mean=mu, sd=sigma)
+plot(x, pdf, type="l", col="red", xlim=c(50,150), ylim=c(0,0.05), xaxt="n",yaxt="n")
+axis(side=1, at=c(70,80,90,110,120,130), labels=T)
+axis(side=2, at=c(0,0.01,0.02,0.03,0.04,0.05), labels=T)
+
+# b) 
+pnorm(120,mean=100,sd=10, lower.tail = F)
+
+# c)
+pnorm(90,mean=100,sd=10)-pnorm(80,mean=100,sd=10)
+
+# d)
+# the probabilities of spending within one standard deviation
+pnorm(mu+sigma,mean=mu, sd=sigma)-pnorm(mu-sigma,mean=mu, sd=sigma)
+
+# the probabilities of spending within two standard deviation
+pnorm(mu+2*sigma,mean=mu, sd=sigma)-pnorm(mu-2*sigma,mean=mu, sd=sigma)
+
+# the probabilities of spending within three standard deviation
+pnorm(mu+3*sigma,mean=mu, sd=sigma)-pnorm(mu-3*sigma,mean=mu, sd=sigma)
+
+# e) Between what two values will the middle 90% of the money spent will fall
+qnorm(0.95,mean=mu, sd=sigma)
+qnorm(0.05,mean=mu, sd=sigma)
+# the value is 83.55146 and 116.4485
+
+# f)
+qnorm(0.95, 100, 10)
+# 116.45
+
+# g)
+hist(rnorm(10000,mean=100,sd=10))
+
+
+### Part 6
+# a)
+pexp(2/60,18)
+
+# b)
+pexp(5/60,18)
+
+# c)
+pexp(5/60,18) - pexp(2/60,18)
+
+# d)
+x<-seq(0,1,by=1/60)
+cdf<-pexp(x, rate=18)
+plot(x,cdf,type="l",col="red",xlim=c(0,1))
