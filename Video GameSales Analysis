@@ -1,0 +1,73 @@
+1.Project Description (CS 555)
+Find a dataset for a research problem of interest, here are some good websites for this
+Kaggle Data Science Competitions: http://kaggle.com
+UCI Machine Learning repository: http://archive.ics.uci.edu/ml/datasets.php
+Google Cloud public data: https://console.cloud.google.com/marketplace/browse?filter=solution-type:dataset&_ga=2.265202890.490000482.1586060190-1118401016.1586060190&pli=1
+Describe a research scenario and specify a research question based on data analytic methods that we learned in our class, for example methods like, one and two sample means, t-test, correlation tests, simple and multiple linear regression, ANOVA and ANCOVA, one and two-Sample Tests for Proportions and logistic regression. 
+Clean up your data and reduce it to no more than 500 observations if your data set is large. 
+
+2.Research Scenario Description Nowadays, video game become more and more popular. The video game demand is increasing a lot. My term project will research about the video game sales. The data is from Kaggle Data science competitions. The research will be based on sales data to calculated the correlation. Also, the ANOVA to test the difference in sales from different years, which we can know the if there is difference between sales and years. The project will analyze all that.
+Describe briefly the data set. Describe each of the columns of the data set that are used in your analysis. Clean up your data before usage (e.g. asses and remove outliers, perform any necessary transformations, ensure assumptions of your analysis are met). Remove unused columns. If possible,  provide a link to the main data set source. 
+
+3.Describe the data set 
+The data I used was download from Kaggle published by Rush Kirubi. Here is the link to the data. https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings/data#
+The data has 16 columns. We will keep 6 columns data for this project. We will remove columns Name, platform, genre, publisher, critic_score, critic_count, user_score, user_count, developer and rating columns. The reason to remove these columns is data is not really related to the research question. We will keep the columns that related to sales which are NA_sales, EU_sales, JP_sales, other_sales, global_sales. These data and the year can tell the difference, and we can see how the difference between sales in different area and difference year.
+
+4.Research Question 
+First question is that is there a significant evidence can prove Sales and Years has relationship? Using ANOVA to see the results, If P value <0.05 means it has difference between Sales and Years.
+Second question is use regression and correlation to analyze and see what influence the global game sales.
+
+5.State Your Conclusion 
+After using R to generate the results, we have the conclusion. According to ANOVA results, P value < 2.2e-16, it means game sales in different year are different at 5% confidence level. As the year change, the sale will change either. Also, from correlation and regression results we can see sales from different country North American, European, Japanese and others influence the global sale. The P value < 0.05 from all.
+
+library(corrplot)
+
+#read data in R and removed the missing value
+sale<- read.csv("/Users/pengchongma/Desktop/videogamesale.csv", header = TRUE, sep = ",")
+sale
+sale<-na.omit(sale)
+
+head(sale)
+nrow(sale)
+ncol(sale)
+summary(sale)
+sale2<-sale[,c(3,6:10)]
+head(sale2)
+corre<-cor(sale2[2:6])
+corre
+corrplot(corre)
+
+summary(sale2)
+t.test(sale2$NA_Sales,sale2$EU_Sales,paired=T)
+t.test(sale2$NA_Sales,sale2$JP_Sales,paired=T)
+t.test(sale2$NA_Sales,sale2$Other_Sales,paired=T)
+t.test(sale2$JP_Sales,sale2$EU_Sales,paired=T)
+
+plot(sale2[,1],sale2$Global_Sales)
+hist(sale2$Global_Sales)
+plot(sale2$NA_Sales,sale2$Global_Sales,main="Global_Sales and NA_Sales")
+abline(lm(Global_Sales~NA_Sales,sale2),col="blue")
+
+aovvaa<-aov(Global_Sales~Year_of_Release,sale2)
+summary(aovvaa)
+regress<-lm(Global_Sales~Year_of_Release,sale2)
+summary(regress)
+regress1<-lm(Global_Sales~.,sale2)
+summary(regress1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
