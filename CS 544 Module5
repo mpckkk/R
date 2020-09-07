@@ -1,0 +1,200 @@
+Part1) Central Limit Theorem 
+The input data consists of the sequence from 11 to 20 (11:20). Show the following three plots in a single row.
+a) Show the histogram of the densities of this distribution.
+b) Using all samples of this data of size 2, show the histogram of the densities of the sample means.
+c) Using all samples of this data of size 5, show the histogram of the densities of the sample means.
+d) Compare of means and standard deviations of the above three distributions.
+Part2) Central Limit Theorem 
+The data in the file queries.csv contains the number of queries Google has had each day for a one year period (365 days). The data file is also available at http://kalathur.com/cs544/data/queries.csv. Use this link to read the data using read.csv function when submitting the homework.
+a) Show the histogram of the distribution of the number of queries. Compute the mean and standard deviation of the number of queries Google has had per day.
+b) Draw 1000 samples of this data of size 5, show the histogram of the densities of the sample means. Compute the mean of the sample means and the standard deviation of the sample means. 
+c) Draw 1000 samples of this data of size 20, show the histogram of the densities of the sample means. Compute the mean of the sample means and the standard deviation of the sample means. 
+d) Compare of means and standard deviations of the above three distributions.
+Part3) Central Limit Theorem – Negative Binomial distribution 
+Suppose the input data follows the negative binomial distribution with the parameters size = 5 and prob = 0.5.
+a) Generate 1000 random numbers from this distribution. Show the barplot with the proportions of the distinct values of this distribution.
+b) With samples sizes of 10, 20, 30, and 40, generate the data for 5000 samples using the same distribution. Show the histograms of the densities of the sample means. Use a 2 x 2 layout.
+c) Compare of means and standard deviations of the data from a) with the four sequences generated in b).
+Part4) Sampling 
+Use the MU284 dataset from the sampling package. Use a sample size of 20 for each of the following.
+a) Show the sample drawn using simple random sampling without replacement. Show the frequencies for each region (REG). Show the percentages of these with respect to the entire dataset.
+b) Show the sample drawn using systematic sampling. Show the frequencies for each region (REG). Show the percentages of these with respect to the entire dataset.
+c) Calculate the inclusion probabilities using the S82 variable. Using these values, show the sample drawn using systematic sampling. Show the frequencies for each region (REG). Show the percentages of these with respect to the entire dataset.
+d) Order the data using the REG variable. Draw a stratified sample using proportional sizes based on the REG variable. Show the frequencies for each region (REG). Show the percentages of these with respect to the entire dataset.
+e) Compare the means of RMT85 variable for these four samples with the entire data.
+
+###part1
+###a
+library(prob)
+x <- c(11, 12, 13, 14,15, 16, 17, 18, 19, 20)
+samples <- urnsamples(x,1)
+xbar <- apply(samples,1,mean)
+hist(xbar, prob=TRUE)
+mean(xbar)
+sd(xbar)
+###b
+y <- c(11, 12, 13, 14,15, 16, 17, 18, 19, 20)
+samplesb <- urnsamples(y,2)
+xbarb <- apply(samplesb,1,mean)
+hist(xbarb, prob=TRUE)
+mean(xbar)
+sd(xbar)
+###c
+z <- c(11, 12, 13, 14,15, 16, 17, 18, 19, 20)
+samplesr <- urnsamples(z,5)
+xbarr <- apply(samplesr,1,mean)
+hist(xbarr, prob=TRUE)
+mean(xbar)
+sd(xbar)
+###d
+mean(xbar)
+sd(xbar)
+##The mean stayed the same but the standard deviation decreased as the sample size increased
+
+###part2
+a<-read.csv("http://kalathur.com/cs544/data/queries.csv")
+par(mfrow = c(1,1))
+###a
+hist(a$queries,freq = TRUE,ylim = c(0,50),
+     main = " histogram of the distribution
+     of the number of queries")
+mean(a$queries)
+sd(a$queries)
+
+###b
+samples<-1000
+sample.size<-5
+xbar <- numeric(samples)
+
+for (i in 1: samples) {
+  xbar[i] <- mean(sample(a$queries,size=sample.size, 
+                         replace = TRUE))
+}
+
+hist(xbar, prob = TRUE, 
+     breaks = 15,  
+     main = "Sample Size = 5")
+
+mean(xbar)
+sd(xbar)
+
+###c
+samples1<-1000
+sample.size1<-20
+xbar1 <- numeric(samples1)
+
+for (i in 1: samples1) {
+  xbar1[i] <- mean(sample(a$queries,size=sample.size1, 
+                          replace = TRUE))
+}
+
+hist(xbar1, prob = TRUE, 
+     breaks = 15,  
+     main = "Sample Size = 20")
+
+mean(xbar1)
+sd(xbar1)
+
+###d
+for (size in c(1, 5, 20)) {
+  for (i in 1:samples) {
+    xbar[i] <- mean(sample(a$queries, size = size, replace = TRUE)) }
+  cat("Sample Size = ", size, " Mean = ", mean(xbar),
+      " SD = ", sd(xbar), "\n")}
+
+###part3
+###a
+samples <- 1000
+xbar <- numeric(samples)
+for (i in 1:samples) {
+  xbar[i] <- mean(rnbinom(1000, size=5,prob = 0.5))
+}
+barplot(prop.table(table(xbar)),xlab = "x", ylab = "Proportion")
+mean(xbar)
+sd(xbar)
+
+###b
+samples <- 5000
+xbar <- numeric(samples)
+par(mfrow = c(2,2))
+x = rnbinom(5000, size=5,prob=0.5)
+for (size in c(10, 20, 30, 40)) {
+  for (i in 1:samples) {
+    xbar[i] <- mean(sample(x, size = size,
+                           replace = TRUE))
+  }
+  hist(xbar, prob = TRUE,
+       breaks = 15, xlim=c(0,6), ylim = c(0, 1.5),
+       main = paste("Sample Size =", size))
+  cat("Sample Size = ", size, " Mean = ", mean(xbar),
+      " SD = ", sd(xbar), "\n")
+}
+mean(xbar)
+sd(xbar)
+
+###part4
+###a
+set.seed(153)
+s <- srswor(20, nrow(MU284))
+sample.1 <- MU284[s != 0, ]
+table(sample.1$REG)
+table(MU284$REG)
+
+###b
+set.seed(113)
+N <- nrow(MU284)
+n <- 20
+k <- ceiling(N / n)
+k
+r <- sample(k, 1)
+r
+# select every kth item
+s <- seq(r, by = k, length = n)
+sample.2 <- MU284[s, ]
+extraone<-sample((1:nrow(MU284))[-s], 1)
+new_s<-c(s[-length(s)], extraone)
+sample.2 <- MU284[new_s, ]
+tail(sample.2)
+table(sample.2$REG)
+table(MU284$REG)
+
+###c
+set.seed(113)
+# UPsystematic
+pik <- inclusionprobabilities(
+  MU284$S82, 20)
+length(pik)
+sum(pik)
+s <- UPsystematic(pik)
+sample.3 <- MU284[s != 0, ]
+sample.3
+table(sample.3$REG)
+table(MU284$REG)
+
+###d
+set.seed(113)
+order.index <- order(MU284$REG)
+data <- MU284[order.index, ]
+# Proportional
+freq <- table(data$REG)
+freq
+sizes <- round(20 * freq / sum(freq))
+sizes
+sum(sizes)
+st <- strata(data, stratanames = c("REG"),
+             size = sizes, method = "srswor")
+sample.4 <- getdata(data, st)
+head(st)
+#draw the random sample
+sample.4
+#show the frequencies for each region and compare
+table(sample.4$REG)
+table(MU284$REG)
+
+###e
+mean(sample.1$RMT85)
+mean(sample.2$RMT85)
+mean(sample.3$RMT85)
+mean(sample.4$RMT85)
+mean(MU284$RMT85)
+#The mean is close to sample3.
