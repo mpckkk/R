@@ -1,0 +1,159 @@
+Sports Analytics
+Basketball Data Analysis
+The SportsAnalytics package (version 0.2) for R is used for this module. The
+version, along with its dependencies, can be installed from
+http://cran.r-project.org/src/contrib/SportsAnalytics_0.2.tar.gz
+The above package is still in its initial stages of development. The NBA player statistics can be downloaded using this package. The fetch_NBAPlayerStatistics function returns a data frame of the player statistics for the specified season. By default, the complete statistics (home and away games) is included. The raw data for this function is obtained from the website
+http://dougstats.com
+
+1.Which player has the best three point percentage?
+Sasha Vujacic with 43.7%
+Which player has played the largest number of minutes?
+Kobe with 3193 minutes.
+Which player has the most “steals”?
+Kobe with 150 steals.
+2.Show Five teams for 2007-2008 have most  wins 
+Boston Celtics 66 wins
+Detorit Pistons 59 wins
+Los Angelas Lakers 57 wins
+New Orleans Hornets 56 wins
+San Antonio Spurs 56 wins
+
+# Basketball Data Analytics ---- 
+library(googleVis)
+library(SportsAnalytics)
+
+#Retrived data of 07-08 season
+nba0708 <- fetch_NBAPlayerStatistics("07-08")
+nba0708
+
+save(nba0708, file="nba0708.RData")
+load(file="nba0708.RData")
+names(nba0708)
+
+#I set My fav team "Los Angelas Lakers"
+levels(nba0708$Team)
+nba0708.lal <- subset(nba0708, Team == 'LAL')
+nba0708.lal
+names(nba0708.lal)
+
+##Three Questions Code
+FPp <- nba0708.lal$ThreesMade/nba0708.lal$ThreesAttempted*100
+nba0708.lal$FPp <- FPp
+FPp
+
+MaxVal <- max(nba0708.lal$Steals,na.rm=TRUE)
+MaxVal
+indx <- nba0708.lal$Steals==MaxVal
+nba0708.lal[indx,]
+
+MaxVal1 <- max(nba0708.lal$TotalMinutesPlayed,na.rm=TRUE)
+MaxVal1
+indx1 <- nba0708.lal$TotalMinutesPlayed==MaxVal
+
+
+#Show 5 teams for the 2007-2008 season that have the most wins in descending order
+#The data is not in the fetch function, so I search the website that has the record for 07-08 season
+library(rvest)
+library("dplyr")
+mostwin <- read_html("https://www.basketball-reference.com/leagues/NBA_2008.html")
+datawins<-html_nodes(x=mostwin,css=".full_table .left+ .right , .full_table .left")%>%html_text()
+datawins
+
+#team and wins 
+team<-data[c(TRUE,FALSE)] 
+wins<-data[c(FALSE,TRUE)] 
+
+#clean the mass data and find the most win team
+team<-gsub(pattern =  "\\([^()]+\\)","",team) 
+team<-gsub("*", "", team)
+team<-gsub("\\*", "", team)
+team<-gsub(intToUtf8(160),'',team)
+teamwins<-data.frame(team,wins)
+teamwins$wins<-as.numeric(as.character(teamwins$wins))
+teamwins
+top.5<-teamwins%>%top_n(5,wins)
+top.5
+
+##Five Google Chart related to my fav team data
+chart1 <- gvisTable(nba0708.lal[,c(2,4:12)])
+plot(chart1)
+print(chart1, file = "chart1.html")
+
+chart2 <- 
+  gvisColumnChart(
+    nba0708.lal,
+    xvar = "Name",
+    yvar = c("FieldGoalsMade", "FieldGoalsAttempted"),
+    options=list(
+      legend="top",
+      height=500, width=850))
+plot(chart2)
+print(chart2, file = "chart2.html")
+
+chart3 <- 
+  gvisBubbleChart(nba0708.lal, 
+                  idvar="Name", 
+                  xvar="Blocks", yvar="Assists",
+                  options=list(
+                    hAxis='{minValue:10, maxValue:120}',
+                    width=800, height=600,title="Assistts VS Blocks"))
+plot(chart3)
+
+chart4 <- gvisColumnChart(nba0708.lal,
+                          xvar="Name", 
+                          yvar=c("Technicals","PersonalFouls"),
+                          options=list(isStacked = TRUE))
+plot(chart4)
+
+chart5 <- 
+  gvisComboChart(nba0708.lal,
+                 xvar="Name",
+                 yvar=c("FreeThrowsMade", "FreeThrowsAttempted"),
+                 options=list(seriesType="line",
+                              series='{1: {type:"bars"}}'))
+plot(chart5)
+
+chart6 <- gvisAreaChart(nba0708.lal,
+                         xvar="Name", 
+                         yvar=c("Steals","Blocks"),
+                         options=list(isStacked = TRUE))
+plot(chart6)
+
+#### Basketball Championship Data -----
+library(googleVis); library(XML); library(stringr)
+library(httr)
+
+webpage <- paste0("http://www.landofbasketball.com/", "world_cup_stats/medals_by_year.htm")
+#data <- readHTMLTable(webpage,which = 1, stringsAsFactors = FALSE)
+LoB.temp.data <- readHTMLTable(rawToChar(GET(webpage)$content), header = T, stringsAsFactors = F)
+LoB.temp.data <- as.character(unlist(LoB.temp.data))
+
+split.data <- strsplit(LoB.temp.data, split='(\n|\t)')
+Year <- sapply(split.data, FUN = function (x) substr(x[[1]][1], 3, 7))
+Winner <- sapply(split.data,FUN = function (x) str_trim(x[[7]]))
+Series <- sapply(split.data,FUN = function (x) str_trim(x[[11]]))
+Opponent <- sapply(split.data,FUN = function (x) str_trim(x[[13]]))
+
+LoB.data <- data.frame(Year=Year, Winner= Winner, Series=Series, Opponent=Opponent)
+chart7 <- gvisTable(LoB.data,
+                    options=list(
+                      height=500))
+plot(chart7)
+
+###geo chart for world cup Chamption
+library(googleVis); library(XML); library(stringr)
+library(httr)
+library(rvest)
+worldcup <- read_html("http://www.landofbasketball.com/world_cup_stats/medals_by_year.htm")
+datacham<-html_nodes(x=worldcup,css="td:nth-child(3) a , .a-right a")%>%html_text()
+year<-word(datacham[c(TRUE,FALSE)],-1)
+country<-gsub("\n\t\t\t\t\t \n\t\t\t\t  ","",datacham[c(FALSE,TRUE)])
+country
+champion<-data.frame(year,country)
+champion
+
+Geo<- gvisGeoChart(champion,"Gold",
+                 options=list(projection="kavrayskiy-vii",
+                datalessRegionColor ="#e5f5f9",colorAxis="{values:[1,2],colors:['#8a4cab', '#8a4cab']}"))
+plot(Geo)
