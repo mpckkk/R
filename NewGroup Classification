@@ -1,0 +1,87 @@
+rm(list = ls()); cat("\014")
+#load any packages required for this analysis
+library(magrittr)
+library(tm)
+library(class)
+#library(pROC)
+#library(ggplot2)
+# set some options and constants
+options(digits=4, scipen = 1000)
+BU_Red <- "#cc0000"
+seed <- 20190402
+# define a function to return a random sample of documents of size n
+random.vcorpus <- function(seed, directory, n){
+set.seed(seed) #set the seed to make function repeatable (assuming same files)
+files <- sample(list.files(directory, full.names = TRUE), n) #paths of random files in directory
+return(VCorpus(URISource(files))) # create the VCorpus from the paths
+}
+
+datastore <- "data"
+
+if(!file.exists(datastore)){datastore = system.file("texts/20Newsgroups", package = "tm")}
+trainpath <- paste(datastore, "20news-bydate-train", sep = "/")
+testpath <- paste(datastore, "20news-bydate-test", sep = "/")
+#
+# A. create five VCorpus objects
+# the four corpora for the space and auto train and test sets
+Doc1.Train <- random.vcorpus(seed, paste(trainpath, "sci.space", sep = "/"), 100)
+Doc1.Test <- random.vcorpus(seed, paste(testpath, "sci.space", sep = "/"), 100)
+Doc2.Train <- random.vcorpus(seed, paste(trainpath, "rec.autos", sep = "/"), 100)
+Doc2.Test <- random.vcorpus(seed, paste(testpath, "rec.autos", sep = "/"), 100)
+# merge the four into a fifth
+comp.corpus <- c(Doc1.Train, Doc1.Test, Doc2.Train, Doc2.Test)
+# just in case, lets save the corpus for reuse
+#save(comp.corpus, file="data/comp.corpora.rdata")
+#load("data/comp.corpora.rdata")
+## cleanup reduntant variables
+rm(random.vcorpus, datastore, trainpath, testpath, Doc1.Train, Doc1.Test, Doc2.Train, Doc2.Test)
+# B. conduct preprocessing
+# would prefer to keep full email addresses, but reusing profs code works for now
+blank.chr <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+processed.corpus <- tm_map(comp.corpus, content_transformer(tolower)) %>%
+tm_map(removeWords, stopwords("english")) %>%
+
+tm_map(blank.chr, "@") %>% tm_map(removePunctuation) #%>% # this did nothing to improve accuracy
+# tm_map(stemDocument)
+# confirm all lower case, no english stop words, space in email, no punctuation
+comp.corpus[[1]]$content[1:10]
+processed.corpus[[1]]$content[1:10]
+#check check
+rm(blank.chr)
+#
+# C. create Document-Term Matrix
+DTM <- DocumentTermMatrix(processed.corpus, control = list(wordLengths = c(2, Inf),
+bound = list(global = c(5, Inf))))
+#inspect(DTM)
+# done with the corpora
+rm(comp.corpus, processed.corpus)
+# D. split DTM into train and test datasets
+train.set <- DTM[c(201:300, 1:100),]
+test.set <- DTM[c(301:400,101:200),]
+#
+rm(DTM)
+# E. Make a "correct tags" vector
+classes.actual <- factor(c(rep("Sci",100), rep("Rec",100)),levels=c("Sci","Rec"))
+#
+# F. Classify text using the kNN() function
+# this is still clunky but I get what I need
+# ideally apply this to multiple random samples and get the mean result (rabbit hole)
+#set.seed(seed)
+#k.optimal <- sapply(1:20, knn, train = train.set, test = test.set, cl = classes.actual, prob = T)
+#(k.optimal <- which(colSums(k.optimal == classes.actual)/200 ==
+# max(colSums(k.optimal == classes.actual)/200)))
+k.optimal <-11
+classes.predicted <- knn(train.set, test.set, classes.actual, k = k.optimal, prob = T)
+# G. Display classification results as a R dataframe
+results <- data.frame(doc = test.set$dimnames$Docs,
+predicted = levels(classes.predicted)[classes.predicted],
+prob = attributes(classes.predicted)$prob,
+actual = classes.actual,
+accurate = levels(classes.predicted)[classes.predicted] == classes.actual)
+rm(k.optimal, train.set, test.set)
+# H. Accuracy
+accuracy <- sum(results$accurate) / nrow(results)
+#or
+# confusion matrix
+conf.matrix <- addmargins(t(table(classes.predicted, classes.actual)))
+#accuracy <- (conf.matrix[1,1] + conf.matrix[2,2]) / conf.matrix[3,3]
