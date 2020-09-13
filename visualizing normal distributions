@@ -71,3 +71,101 @@ cord.y <- c(cord.y, dnorm(-2), 0)
 
 # Now, we can use the polygon function and color parts in skyblue color. 
 polygon(cord.x, cord.y, col="skyblue")
+#### Code examples for handling normal distributions and solving problems related to normal distributions ####
+
+### Load up the normal distribution using rnorm ###
+babyData <- rnorm(1000, mean = 3500, sd=500)
+
+###Confirm this is normally distributed ###
+hist(babyData)
+
+# Here is the second plot command
+plot(density(babyData),lwd=3,col="red",main="")
+
+###What is the probability a baby weighs less than 4000 grams?? ###
+
+#Compute Z-Score
+zscore = (4000-3500)/500
+
+# Get probability less than Z from Standard Normal Distribution
+pnorm(zscore)
+
+# OR can do this directly using the mean and sd parameters
+pnorm(4000,mean=3500,sd=500)
+
+?pnorm
+
+### What is the value of the normal density curve at 3500 in the plot?
+dnorm(4000,mean=3500,sd=500)
+
+###What percent of infants weigh between 3750 and 3250 grams?
+pnorm(3750,mean=3500,sd=500) - pnorm(3250,mean=3500,sd=500)
+
+###What percent of infants weigh ABOVE 4000 grams
+pnorm(4000,mean=3500,sd=500,lower.tail=F)
+
+###What value captures x % of the distribution? What value of newborn weight makes the P(X <= x) == p
+
+#mean captures 50% of the distribution
+qnorm(0.5,mean=3500,sd=500)
+
+qnorm(0.75,mean=3500,sd=500)
+
+
+
+#### Let's compute one of these answers, empirically from our data?
+
+### What percent of newborns weigh less than 4000 grams?
+
+###Remember the pnorm answer using an "idealized" view of the data
+pnorm(4000,mean=3500,sd=500)
+
+###How many of our babies actually weighed less than 4000 grams?
+babyData < 4000
+
+sum(babyData < 4000)
+
+sum(babyData<4000) / length(babyData)
+
+
+
+###These functions require normally distributed data!
+
+# Uniformly distributed random variable
+babyData = runif(1000,min=2000,max=5000)
+
+# Get summary stats
+hist(babyData)
+mean(babyData)
+sd(babyData)
+
+
+###Assume normality and find percent of babies weighing less than 4000 grams
+pnorm(4000,mean=mean(babyData),sd=sd(babyData))
+
+# Compute actual numbers from the data
+sum(babyData<4000)/length(babyData)
+
+# No matter how big our sample size is, these values will continue to be off
+### Code examples for demonstrating how outliers appear in the data and how boxplots detect them ###
+
+days <- read.csv("Datasets/Example_Data.csv", header = FALSE)
+# To convert and flatten data from a data frame you can use the unlist command. 
+
+myDays <- unlist(days, use.names=FALSE)
+# myDays is now a simple vector data type that I can work with. 
+
+# Now plot the boxplot
+boxplot(myDays)
+
+# add manually an outlier here 
+myDays <-c(myDays, 45)
+
+# Now plot the boxplot
+boxplot(myDays)
+
+summary(myDays)
+# you can turn the outlier detection off by setting outline=FALSE
+boxplot(myDays, outline=FALSE)
+
+
