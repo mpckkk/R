@@ -1,0 +1,150 @@
+#numeric data types: integer, double
+348 
+
+#Character
+"my string"
+
+#logical
+TRUE
+FALSE
+
+#Arithmetic Operators as you'd expect
+42 + 1 * 2 ^ 4
+
+# Logical Operators and comparison
+
+# | is OR
+TRUE | FALSE
+
+# Greater than and less than as you'd expect
+1 + 7 > 7
+
+1 + 7 >= 7 & 6 > 7
+
+
+###Testing for Equality
+3 == 3
+
+##Testing for Inequality
+3 != 3
+### VECTORS AND VARIABLES ####
+
+###Variable assignment is <- OR =
+
+my_number = 483
+my_number <- 483
+
+
+###Default to double
+typeof(my_number)
+
+###Convert from double to integer
+my_int = as.integer(my_number)
+
+###typeof(my_int)
+typeof(my_int)
+
+###Vector data structure
+my_vec <- c(1,2,67,-8)
+
+#Get some properties
+str(my_vec)
+
+###INDICES START AT 1 IN R
+
+###Slicing and Dicing
+my_vec[1]
+
+my_vec[0]
+
+my_vec[c(2,3)]
+
+my_vec[c(2:4)]
+
+my_vec[5] <- 41.2
+my_vec[7] <- 33
+
+
+
+
+###Additional
+indices = c(2:4)
+
+indices
+
+my_vec[indices]
+### WORKING DIRECTORY SETTING AND GETTING ###
+
+
+###This gives the path where R is currently looking for files
+getwd()
+
+original_dir = getwd()
+
+original_dir
+
+
+## Change the path where R is looking for files to another
+setwd("C:/Users/vkr0/Documents/")
+
+getwd()
+
+
+#must use forward slash or double backslash
+setwd("C:\Users\vkr0\Documents")
+
+
+
+setwd(original_dir)
+
+getwd()
+
+
+### Reading data into R ###
+days <- read.csv("Datasets/Example_Data.csv", header = FALSE)
+
+### Data with a header
+golf = read.csv("Datasets/GolfBals.csv",header=T)
+
+
+### INSTALLING PACKAGES ####
+
+
+###INstalls the package from the CRAN mirror (must be connected to the internet)
+install.packages("swirl")
+
+###Loads the package to be used!
+library(swirl)
+
+### To see all installed packages
+library()
+
+
+###Quits out of R and asks if you want to save your workspace
+q()
+
+
+
+###Save the workspace
+save.image(file="Current_Workspace.RData")
+
+###Remove all objects in the current workspace
+rm(list=ls())
+
+load("Current_Workspace.RData")
+
+###Save just two dataframes
+save(days,golf,file="All_Data.RData")
+
+rm(list=ls())
+
+load(file="All_Data.RData")
+
+###Removes only the specified variables
+rm(days,golf)
+
+###Getting help
+?rm
+
+###Deletes the file
+unlink("All_Data.RData")
