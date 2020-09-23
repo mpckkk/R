@@ -1,3 +1,79 @@
+### SIMPLE R VISUALIZATIONS ###
+
+### Reading data into R ###
+
+###Change the file path to match your location
+days <- read.csv("/Users/pengchongma/Desktop/Lecture_1/Example_Data.csv", header = FALSE)
+
+### Data with a header
+golf = read.csv("/Users/pengchongma/Desktop/Lecture_1/GolfBals.csv",header=T)
+
+
+###Summary statistics on a particular variable
+
+golf$distance
+
+mean(golf$distance)
+median(golf$distance)
+min(golf$distance)
+max(golf$distance)
+quantile(golf$distance)
+
+var(golf$distance)
+sd(golf$distance)
+
+
+###Skewed Mean and median
+
+###Generate a skewed variable
+variable = c(rep(30,50),rep(35,30),rep(40,20),rep(65,5),70,75,80,120)
+
+###Add some random noise to it
+variable = variable + runif(length(variable),min=0,max=7)
+
+variable
+
+
+###Basic histogram
+hist(variable)
+
+###Compute the mean of the variable
+mean(variable)
+
+###Compute the median
+median(variable)
+
+###Qualitative data summaries
+
+##Class counts
+table(golf$brand)
+
+###Pie chart of class counts
+pie(table(golf$brand))
+
+###Barplot of class counts
+barplot(table(golf$brand))
+
+
+###Class frequencies
+table(golf$brand)/nrow(golf)
+
+###Barplot of class frequencies with titles
+barplot(table(golf$brand)/nrow(golf),main="Golf Balls by Brand",xlab="Brand",ylab="Frequency")
+
+
+###Summary of golf data
+summary(golf)
+
+####Histogram of golf data
+hist(golf$distance)
+hist(golf$distance,bins=2)
+hist(golf$distance,breaks=c(255,265,275,285,295))
+
+###Boxplot of golf data
+boxplot(golf$distance)
+
+
 ###Draw 100 samples from a normal distribution with mean 3500 and standard deviation 500
 babyData <- rnorm(100, mean = 3500, sd=500)
 
