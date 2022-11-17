@@ -1,4 +1,4 @@
-CS544 Module 1 Assignment
+Example1
 Part1) 
 The following sample data shows the scores of the students in an exam: 58, 52, 93, 55, 54, 99, 68, 69, 98, 70
 Using R, assign the above data as a vector in the same order to a variable, say, scores. Do the following using R:
