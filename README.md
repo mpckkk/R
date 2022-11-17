@@ -1,2 +1,2 @@
 # R Studio
-Play with R
+Play with R studio
