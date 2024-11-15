@@ -1,2 +1,2 @@
 # R Studio
-In this repo, it has all fun project I have been Play With, all scripts is written by R.
+This repository contains a collection of fun and experimental projects I’ve been working on. All scripts in this repository are written in R, showcasing various concepts, techniques, and creative ideas I’ve explored.
